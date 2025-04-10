@@ -1,10 +1,12 @@
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
 
 const prisma = new PrismaClient();
 
 const app = express();
 app.use(express.json());
+app.use(cors('http://localhost:5174'));
 
 //Criar dados / ususarios / fazer requeisição POST
 app.post('/users', async (req, res) => {
@@ -24,14 +26,16 @@ app.get('/users', async (req, res) => {
 
     let users = [];
 
-    if (req.query) { 
+    if (req.query) {
         users = await prisma.user.findMany({
             where: {
-                name: req.query.name
+                name: req.query.name,
+                email: req.query.email,
+                age: req.query.age
             }
         })
         return res.status(200).json(users);
-    }else{
+    } else {
 
         const users = await prisma.user.findMany();
         res.status(200).json(users);
@@ -63,7 +67,7 @@ app.put('/users/:id', async (req, res) => {
         where: {
             id: req.params.id
         },
-        
+
     })
     res.status(201).json({ messege: 'Usuario atualizado com sucesso!' });
 })
